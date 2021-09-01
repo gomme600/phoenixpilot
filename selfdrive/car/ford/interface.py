@@ -122,8 +122,8 @@ class CarInterface(CarInterfaceBase):
     if not apaAcknowledged:
       events.add(car.CarEvent.EventName.apaNotAcknowledged)
     if self.CC.enabled_last:
-      if self.CS.sappHandshake == 2 and self.CC.apaCntr <= 3:
-        events.add(car.CarEvent.EventName.pscmHandshaked)
+      if self.CS.sappHandshake == 0 or self.CS.sappHandshake == 1:
+        events.add(car.CarEvent.EventName.pscmHandshaking)
       if self.CS.sappHandshake == 3:
         events.add(car.CarEvent.EventName.pscmLostHandshake)
     ret.events = events.to_msg()
