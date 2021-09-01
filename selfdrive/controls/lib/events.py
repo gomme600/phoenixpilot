@@ -475,7 +475,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   
   EventName.pscmHandshaking: {
     ET.WARNING: Alert(
-      "RELEASE THE WHEEL",
+      "TAKE CONTROL",
       "PSCM is handshaking. Please wait...",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, .4, 2., 3.),
@@ -488,8 +488,15 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .0, .1),
   },
   EventName.pscmLostHandshake: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("PSCM APA Handshake Lost")
+    ET.WARNING: Alert(
+      "TAKE CONTROL",
+      "PSCM APA Handshake Lost",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, .4, 2., 3.),
   },
+  #EventName.pscmLostHandshake: {
+  #  ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("PSCM APA Handshake Lost")
+  #},
   
   # ********** events that affect controls state transitions **********
 
