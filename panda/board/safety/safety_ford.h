@@ -72,7 +72,7 @@ static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   if(!relay_malfunction) {
     if((bus_num == 0) && (addr != 0x202) && (addr != 0x3A8) && (addr != 0x415)) {
       bus_fwd = 2;
-    } else if(bus_num == 2) && (addr != 0x3CA) && (addr != 0x3D8)) {
+    } else if((bus_num == 2) && (addr != 0x3CA) && (addr != 0x3D8)) {
       bus_fwd = 0;
     }
   }	
