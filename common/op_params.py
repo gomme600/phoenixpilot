@@ -19,7 +19,7 @@ class ValueTypes:
 
 
 class Param:
-  def __init__(self, default=None, allowed_types=[], description=None, live=False, hidden=False):
+  def __init__(self, default=None, allowed_types=[], description=None, live=False, hidden=False, depends_on=False):
     self.default = default
     if not isinstance(allowed_types, list):
       allowed_types = [allowed_types]
@@ -27,21 +27,32 @@ class Param:
     self.description = description
     self.hidden = hidden
     self.live = live
+    self.depends_on = depends_on
+    self.children = []
     self._create_attrs()
 
   def is_valid(self, value):
     if not self.has_allowed_types:  # always valid if no allowed types, otherwise checks to make sure
       return True
-    return type(value) in self.allowed_types
+    if self.is_list and isinstance(value, list):
+      for v in value:
+        if type(v) not in self.allowed_types:
+          return False
+      return True
+    else:
+      return type(value) in self.allowed_types or value in self.allowed_types
 
   def _create_attrs(self):  # Create attributes and check Param is valid
     self.has_allowed_types = isinstance(self.allowed_types, list) and len(self.allowed_types) > 0
     self.has_description = self.description is not None
     self.is_list = list in self.allowed_types
+    self.is_bool = bool in self.allowed_types
     if self.has_allowed_types:
-      assert type(self.default) in self.allowed_types, 'Default value type must be in specified allowed_types!'
-    if self.is_list:
-      self.allowed_types.remove(list)
+      assert type(self.default) in self.allowed_types or self.default in self.allowed_types, 'Default value type must be in specified allowed_types!'
+
+      if self.is_list and self.default:
+        for v in self.default:
+          assert type(v) in self.allowed_types, 'Default value type must be in specified allowed_types!'
 
 
 class opParams:
@@ -73,6 +84,33 @@ class opParams:
                         'supercloak_reregister': Param(False, bool, "dump your supercloak Dongle ID if it gets banned"),
                         'uploadsAllowed': Param(True, bool, "Allow uploads to Comma. Not recommended. If you are not cloaked and supercloaked, you risk your device being banned."),
                         #'use_car_caching': Param(True, bool, 'Whether to use fingerprint caching'),
+
+                        ENABLE_COASTING: Param(False, bool, 'When true the car will try to coast down hills instead of braking.', live=True),
+                        COAST_SPEED: Param(10.0, VT.number, 'The amount of speed to coast by before applying the brakes. Unit: MPH',
+                                          live=True, depends_on=ENABLE_COASTING),
+                        SETPOINT_OFFSET: Param(0, int, 'The difference between the car\'s set cruise speed and OP\'s. Unit: MPH', live=True),
+                        DOWNHILL_INCLINE: Param(-1, VT.number, 'If the angle between the current road and the future predicted road is less than this value, '
+                                                              'the car will try to coast downhill. Unit: degrees', live=True, depends_on=ENABLE_COASTING),
+                        ALWAYS_EVAL_COAST: Param(False, bool, live=True, depends_on=ENABLE_COASTING),
+                        EVAL_COAST_LONG: Param(False, bool, live=True, depends_on=ENABLE_COASTING),
+                        ENABLE_LONG_PARAMS: Param(False, bool, live=True, description='When true the long controller will used the params in opParam '
+                                                  'instead of the car\' params'),
+                        ENABLE_GAS_PARAMS: Param(True, bool, live=True, depends_on=ENABLE_LONG_PARAMS),
+                        GAS_MAX_BP: Param([0., 20, 33], [list, float, int], live=True, depends_on=ENABLE_GAS_PARAMS),
+                        GAS_MAX_V: Param([0.3, 0.2, 0.075], [list, float], live=True, depends_on=ENABLE_GAS_PARAMS),
+                        ENABLE_BRAKE_PARAMS: Param(False, bool, live=True, depends_on=ENABLE_LONG_PARAMS),
+                        BRAKE_MAX_BP: Param([0., 20, 33], [list, float, int], live=True, depends_on=ENABLE_BRAKE_PARAMS),
+                        BRAKE_MAX_V: Param([0.5, 0.5, 0.5], [list, float], live=True, depends_on=ENABLE_BRAKE_PARAMS),
+                        ENABLE_LONG_PID_PARAMS: Param(False, bool, live=True, depends_on=ENABLE_LONG_PARAMS),
+                        LONG_PID_KP_BP: Param([0., 5., 35.], [list, float, int], live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        LONG_PID_KP_V: Param([3.6, 2.4, 1.5], [list, float, int], live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        LONG_PID_KI_BP: Param([0., 35.], [list, float, int], live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        LONG_PID_KI_V: Param([0.54, 0.36], [list, float, int], live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        LONG_PID_KF: Param(1., VT.number, live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        LONG_PID_SAT_LIMIT: Param(0.8, VT.number, live=True, depends_on=ENABLE_LONG_PID_PARAMS),
+                        ENABLE_LONG_DEADZONE_PARAMS: Param(False, bool, live=True, depends_on=ENABLE_LONG_PARAMS),
+                        LONG_DEADZONE_BP: Param([0., 9.], [list, float, int], live=True, depends_on=ENABLE_LONG_DEADZONE_PARAMS),
+                        LONG_DEADZONE_V: Param([0., .15], [list, float, int], live=True, depends_on=ENABLE_LONG_DEADZONE_PARAMS),
                         }
 
     self._params_file = '/data/op_params.json'
@@ -88,6 +126,13 @@ class opParams:
     self.fork_params['op_edit_live_mode'] = Param(False, bool, 'This parameter controls which mode opEdit starts in', hidden=True)
     self.fork_params["uniqueID"] = Param(None, [type(None), str], 'User\'s unique ID', hidden=True)
     self.params = self._get_all_params(default=True)  # in case file is corrupted
+    
+    for k, p in self.fork_params.items():
+      d = p.depends_on
+      while d:
+        fp = self.fork_params[d]
+        fp.children.append(k)
+        d = fp.depends_on
 
     if travis:
       return
@@ -193,6 +238,38 @@ class opParams:
       return False
 
   def _write(self):
-    if not travis:
-      with open(self._params_file, "w") as f:
-        f.write(json.dumps(self.params, indent=2))  # can further speed it up by remove indentation but makes file hard to read
+    if not travis or os.path.isdir("/data/"):
+      try:
+        with open(self._params_file, "w") as f:
+          f.write(json.dumps(self.params, indent=2))  # can further speed it up by remove indentation but makes file hard to read
+        return True
+      except Exception as e:
+        print("Unable to write file: " + str(e))
+        return False
+
+
+ENABLE_COASTING = 'enable_coasting'
+COAST_SPEED = 'coast_speed'
+SETPOINT_OFFSET = 'setpoint_offset'
+DOWNHILL_INCLINE = 'downhill_incline'
+ALWAYS_EVAL_COAST = 'always_eval_coast_plan'
+EVAL_COAST_LONG = 'eval_coast_long_controller'
+
+ENABLE_LONG_PARAMS = 'enable_long_params'
+ENABLE_GAS_PARAMS = 'enable_gas_params'
+GAS_MAX_BP = 'gas_max_bp'
+GAS_MAX_V = 'gas_max_v'
+ENABLE_BRAKE_PARAMS = 'enable_brake_params'
+BRAKE_MAX_BP = 'brake_max_bp'
+BRAKE_MAX_V = 'brake_max_v'
+ENABLE_LONG_PID_PARAMS = 'enable_long_pid_params'
+LONG_PID_KP_BP = 'long_pid_kp_bp'
+LONG_PID_KP_V = 'long_pid_kp_v'
+LONG_PID_KI_BP = 'long_pid_ki_bp'
+LONG_PID_KI_V = 'long_pid_ki_v'
+LONG_PID_KF = 'long_pid_kf'
+LONG_PID_SAT_LIMIT = 'long_pid_sat_limit'
+ENABLE_LONG_DEADZONE_PARAMS = 'enable_long_deadzone_params'
+LONG_DEADZONE_BP = 'long_deadzone_bp'
+LONG_DEADZONE_V = 'long_deadzone_v'
+
