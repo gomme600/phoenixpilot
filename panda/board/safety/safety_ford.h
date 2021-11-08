@@ -37,7 +37,7 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   if(relay_malfunction) {
     tx = 0;
   }
-  if(addr == 0x3A8) {
+  /*if(addr == 0x3A8) {
     // Steering control: (0.1 * val) - 1000 in deg.
     // We use 1/10 deg as a unit here
     int raw_angle_can = (((GET_BYTE(to_send, 2) & 0x7F) << 8) | GET_BYTE(to_send, 3));
@@ -58,7 +58,7 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     if(!controls_allowed && steer_enabled) {
       violation = true;
     }
-  }
+  }*/
   if(violation) {
     tx = 0;
     controls_allowed = 0;
@@ -70,9 +70,7 @@ static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);	
   if(!relay_malfunction) {
-    if((bus_num == 0) && (addr != 0x202) && (addr != 0x3A8) && (addr != 0x415)) {
-      bus_fwd = 2;
-    } else if((bus_num == 2) && (addr != 0x3CA) && (addr != 0x3D8)) {
+    } else if((bus_num == 2) && (addr != 0x3CA) && (addr != 0x3D8) && (addr != 0x3D3)) {
       bus_fwd = 0;
     }
   }	
