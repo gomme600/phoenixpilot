@@ -62,8 +62,6 @@ class CarController():
     steer_alert = visual_alert == car.CarControl.HUDControl.VisualAlert.steerRequired
     apply_steer = actuators.steeringAngleDeg
     if self.enable_camera:
-      if not self.steerAllowed:
-        self.apaCntr = 0
       if enabled:
         self.steerAllowed = True
       else:
@@ -90,30 +88,16 @@ class CarController():
        #print("CANCELING!!!!")
         can_sends.append(spam_cancel_button(self.packer))
       if (frame % 1) == 0:
-        if self.steerAllowed:
-          self.apaCntr += 1
         self.main_on_last = CS.out.cruiseState.available
-        #SAPP Handshake
-      if (frame % 2) == 0:
-        if CS.sappHandshake in [1,2]:
-          if self.steerAllowed:
-            self.sappState = 2
-            self.angleReq = 1
-          else:
-            self.sappState = 1
-            self.angleReq = 0
-        else:
-          self.sappState = 1
-          self.angleReq = 0
-        #Speed spoofy bois
+      if (frame % 3) == 0:
         if self.steerAllowed:
-          speed = 0
+          self.LCA_Req = 1 # 3 InterventionRight 2 InterventionLeft 1 ContinuousPathFollowing 0 NoLateralControl
+          self.rampRate = 2 # 3 Immediately 2 Fast 1 Medium 0 Slow
         else:
-          speed = CS.vehSpeed
-        can_sends.append(create_speed_command(self.packer, enabled, frame, speed, CS.out.gearShifter, frame_step))
-        can_sends.append(create_speed_command2(self.packer, enabled, frame, speed, frame_step))
+          self.LCA_Req = 0 # 3 InterventionRight 2 InterventionLeft 1 ContinuousPathFollowing 0 NoLateralControl
+          self.rampRate = 2 # 3 Immediately 2 Fast 1 Medium 0 Slow
       #Angle Limits
-      if (frame % 2) == 0:
+      if (frame % 3) == 0:
         angle_lim = interp(CS.out.vEgo, CarControllerParams.ANGLE_MAX_BP, CarControllerParams.ANGLE_MAX_V)
         apply_steer = clip(apply_steer, -angle_lim, angle_lim)
         if self.steerAllowed:
@@ -122,11 +106,12 @@ class CarController():
           else:
             angle_rate_lim = interp(CS.out.vEgo, CarControllerParams.ANGLE_DELTA_BP, CarControllerParams.ANGLE_DELTA_VU)
           
-          apply_steer = clip(apply_steer, self.lastAngle - angle_rate_lim, self.lastAngle + angle_rate_lim) 
+          apply_steer = clip(apply_steer, self.lastAngle - angle_rate_lim, self.lastAngle + angle_rate_lim) * CV.DEG_TO_MRAD
         else:
           apply_steer = CS.out.steeringAngleDeg
         self.lastAngle = apply_steer
-        can_sends.append(create_steer_command(self.packer, apply_steer, enabled, self.sappState, self.angleReq))
+        can_sends.append(create_steer_command(self.packer, apply_steer, enabled, curvature))
+        can_sends.append(create_steer2_command(self.packer, self.LCA_Req, self.rampRate, curvature))
         self.generic_toggle_last = CS.out.genericToggle
       if (frame % 1) == 0 or (self.enabled_last != enabled) or (self.main_on_last != CS.out.cruiseState.available) or (self.steer_alert_last != steer_alert):
         lines = 0
