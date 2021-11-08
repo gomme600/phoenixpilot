@@ -12,15 +12,41 @@ def fordchecksum(cnt, speed):
     cs = cs + 256
   return cs
 
-def create_steer_command(packer, angle_cmd, enabled, action, angleReq):
+def create_steer_command(packer, angle_cmd, enabled, curvature):
   """Creates a CAN message for the Ford Steer Command."""
   
   values = {
-    "ApaSys_D_Stat": action,
-    "EPASExtAngleStatReq": angleReq,
-    "ExtSteeringAngleReq2": angle_cmd,
+    "Lane_Curvature": clip(curvature, -0.03, 0.03),
+    "Steer_Angle_Req": angle_cmd
   }
-  return packer.make_can_msg("ParkAid_Data", 2, values)
+  return packer.make_can_msg("Lane_Keep_Assist_Control", 0, values)
+
+def create_steer_command(packer, lca_rq, ramprate, curvature):
+  """Creates a CAN message for the Ford Steer Command."""
+
+  values = {
+    "LatCtlRampType_D_Rq": ramprate,
+    "LatCtlCurv_NoRate_Actl": clip(curvature, -0.03, 0.03),
+    "LatCtl_D_Rq": lca_rq
+  }
+  return packer.make_can_msg("LateralMotionControl", 0, values)
+
+def create_steer_command(packer, angle_cmd, enabled, lkas_state, angle_steers, curvature, lkas_action):
+  """Creates a CAN message for the Ford Steer Command."""
+
+  #angle_cmd = clip(angle_cmd * MAX_ANGLE, - MAX_ANGLE, MAX_ANGLE)
+  if enabled and lkas_state in [2,3]:
+    action = lkas_action
+  else:
+    action = 0xf
+
+  values = {
+    "Lkas_Action": action,
+    "Lkas_Alert": 0xe,             # no alerts
+    "Lane_Curvature": clip(curvature, -0.03, 0.03),   # is it just for debug?
+    "Steer_Angle_Req": angle_cmd
+  }
+  return packer.make_can_msg("Lane_Keep_Assist_Control", 0, values)
 
 def create_speed_command(packer, enabled, frame, speed, gear, frame_step):
   """Creates a CAN message for the Ford Speed Command."""
