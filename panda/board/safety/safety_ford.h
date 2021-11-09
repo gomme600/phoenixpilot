@@ -37,7 +37,7 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   if(relay_malfunction) {
     tx = 0;
   }
-  /*if(addr == 0x3A8) {
+  if(addr == 0x3A8) {
     // Steering control: (0.1 * val) - 1000 in deg.
     // We use 1/10 deg as a unit here
     int raw_angle_can = (((GET_BYTE(to_send, 2) & 0x7F) << 8) | GET_BYTE(to_send, 3));
@@ -56,12 +56,12 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     }
     desired_angle_last = desired_angle;
     if(!controls_allowed && steer_enabled) {
-      violation = true;
+      violation = false;
     }
-  }*/
+  }
   if(violation) {
-    tx = 0;
-    controls_allowed = 0;
+    tx = 1;
+    controls_allowed = 1;
   }
   return tx;
 }
