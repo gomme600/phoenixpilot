@@ -36,7 +36,7 @@ class CAR:
   TAURUS = "FORD TAURUS" # 2014+ 2010-2013 has acc only. 2013 shares arch with Taurus 2014+. May be able to add IPMA to HS2.
   #Ford models with lkas or acc but not both
   FLEX = "FORD FLEX" # Flex does not have LKAS on any year or trim. ACC only 2013+. Uses same arch as Explorer 2013-2015. May be able to add IPMA to HS2.
-  FOCUS = "FORD FOCUS" # Focus does not have ACC on any year or trim. Steering only 2015+. Uses same arch as Escape. May be able to add CCM to HS2.
+  #FOCUS = "FORD FOCUS" # Focus does not have ACC on any year or trim. Steering only 2015+. Uses same arch as Escape. May be able to add CCM to HS2.
   TRANSIT = "FORD TRANSIT" # 2020+ 2013-2017 has LKAS only.
   #Lincoln models w/ lkas and acc
   AVIATOR = "LINCOLN AVIATOR" # 2020+. 
@@ -56,9 +56,9 @@ FINGERPRINTS = {
     71: 8, 74: 8, 75: 8, 76: 8, 90: 8, 92: 8, 93: 8, 118: 8, 119: 8, 120: 8, 125: 8, 129: 8, 130: 8, 131: 8, 132: 8, 133: 8, 145: 8, 146: 8, 357: 8, 359: 8, 360: 8, 361: 8, 376: 8, 390: 8, 391: 8, 392: 8, 394: 8, 512: 8, 514: 8, 516: 8, 531: 8, 532: 8, 534: 8, 535: 8, 560: 8, 578: 8, 604: 8, 613: 8, 673: 8, 827: 8, 848: 8, 934: 8, 935: 8, 936: 8, 947: 8, 963: 8, 970: 8, 972: 8, 973: 8, 984: 8, 992: 8, 994: 8, 997: 8, 998: 8, 1003: 8, 1034: 8, 1045: 8, 1046: 8, 1053: 8, 1054: 8, 1058: 8, 1059: 8, 1068: 8, 1072: 8, 1073: 8, 1082: 8, 1107: 8, 1108: 8, 1109: 8, 1110: 8, 1200: 8, 1427: 8, 1430: 8, 1438: 8, 1459: 8
   }],
   
-  CAR.FOCUS: [{
-    16: 8, 48: 8, 74: 8, 75: 8, 96: 8, 112: 8, 128: 8, 144: 8, 160: 8, 176: 8, 192: 8, 200: 8, 248: 8, 288: 8, 304: 8, 312: 8, 320: 8, 336: 8, 352: 8, 368: 8, 384: 8, 400: 8, 416: 8, 448: 8, 464: 8, 480: 8, 512: 8, 520: 8, 528: 8, 536: 8, 553: 8, 594: 8, 608: 8, 624: 8, 640: 8, 656: 8, 720: 8, 724: 8, 728: 8, 752: 8, 784: 8, 832: 8, 864: 8, 896: 8, 904: 8, 948: 8, 1024: 8, 1029: 8, 1034: 8, 107 7: 8, 1409: 8
-  }],
+  #CAR.FOCUS: [{
+  #  16: 8, 48: 8, 74: 8, 75: 8, 96: 8, 112: 8, 128: 8, 144: 8, 160: 8, 176: 8, 192: 8, 200: 8, 248: 8, 288: 8, 304: 8, 312: 8, 320: 8, 336: 8, 352: 8, 368: 8, 384: 8, 400: 8, 416: 8, 448: 8, 464: 8, 480: 8, 512: 8, 520: 8, 528: 8, 536: 8, 553: 8, 594: 8, 608: 8, 624: 8, 640: 8, 656: 8, 720: 8, 724: 8, 728: 8, 752: 8, 784: 8, 832: 8, 864: 8, 896: 8, 904: 8, 948: 8, 1024: 8, 1029: 8, 1034: 8, 107 7: 8, 1409: 8
+  #}],
   
   #CAR.EDGE: [{
   #}], 
@@ -80,7 +80,7 @@ FINGERPRINTS = {
   #CAR.MUSTANG: [{
   #}], 
   CAR.MONDEO: [{
-    71: 8, 73: 8, 74: 8, 75: 8, 76: 8, 118: 8, 119: 8, 120: 8, 125: 8, 129: 8, 130: 8, 131: 8, 132: 8, 133: 8, 145: 8, 146: 8, 357: 8, 359: 8, 376: 8, 512: 8, 514: 8, 516: 8, 531: 8, 532: 8, 534: 8, 535: 8, 560: 8, 578: 8, 609: 8, 673: 8, 825: 8, 827: 8, 848: 8, 936: 8, 947: 8, 963: 8, 972: 8, 992: 8, 994: 8, 998: 8, 1003: 8, 1034: 8, 1045: 8, 1046: 8, 1058: 8, 1059: 8, 1068: 8, 1071: 8, 1072: 8, 1073: 8, 1108: 8, 1109: 8, 1200: 8, 1214: 8, 1215: 8, 1430: 8, 1438: 8, 1459: 8
+    16: 8, 48: 8, 74: 8, 75: 8, 96: 8, 112: 8, 128: 8, 144: 8, 160: 8, 176: 8, 192: 8, 200: 8, 248: 8, 288: 8, 304: 8, 312: 8, 320: 8, 336: 8, 352: 8, 368: 8, 384: 8, 400: 8, 416: 8, 448: 8, 464: 8, 480: 8, 512: 8, 520: 8, 528: 8, 536: 8, 553: 8, 594: 8, 608: 8, 624: 8, 640: 8, 656: 8, 720: 8, 724: 8, 728: 8, 752: 8, 784: 8, 832: 8, 864: 8, 896: 8, 904: 8, 948: 8, 1024: 8, 1029: 8, 1034: 8, 107 7: 8, 1409: 8
   }],
   #CAR.RANGER: [{
   #}], 
@@ -164,7 +164,7 @@ SPEED_FACTOR = {
   #CAR.EXPEDITION:
   #CAR.EXPLORER: 
   CAR.F150: 1.116,
-  CAR.FOCUS: 1.,
+  #CAR.FOCUS: 1.,
   #CAR.MUSTANG: 
   CAR.MONDEO: 1.,
   #CAR.RANGER: 
@@ -193,7 +193,7 @@ DBC = {
   #CAR.EXPEDITION: dbc_dict('placeholder', 'placeholder'),
   #CAR.EXPLORER: dbc_dict('placeholder', 'placeholder'),
   CAR.F150: dbc_dict('ford_lincoln_base_pt', None),
-  CAR.FOCUS: dbc_dict('ford_lincoln_base_pt', None),
+  #CAR.FOCUS: dbc_dict('ford_lincoln_base_pt', None),
   #CAR.MUSTANG: dbc_dict('placeholder', 'placeholder'),
   CAR.MONDEO: dbc_dict('ford_lincoln_base_pt', 'ford_fusion_2018_adas'), #ford_mondeo_2016_pt
   #CAR.RANGER: dbc_dict('placeholder', 'placeholder'),
